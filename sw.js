@@ -1,7 +1,7 @@
 /* Tanteo: permite jugar sin conexión.
    Red primero (para recibir cambios), caché si no hay red.
    Al añadir un juego, suma sus archivos a FILES y sube el número de CACHE. */
-var CACHE = 'tanteo-v4';
+var CACHE = 'tanteo-v5';
 var FILES = [
   './', 'index.html', 'hub.css', 'hub.js', 'games.js', 'manifest.webmanifest',
   'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',

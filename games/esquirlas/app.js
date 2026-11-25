@@ -3,8 +3,10 @@
    - Cada Esquirla: n cartas valen n·(n+1)/2 puntos.
    - Resonancia: sets completos (una carta de cada Esquirla en juego) = el mínimo de cartas entre todas.
      Vale base · 2^(sets−1), con base 5 (2–3 jugadores) u 8 (4 jugadores).
-   - Ajustes: puntos sueltos por poderes de cartas.
-   - Desempate: número de cartas. */
+   - Habilidades de puntuación (cartas de fondo oscuro): puntos sueltos que se apuntan a mano.
+   - Desempate (reglamento): gana quien tenga MENOS cartas; si sigue el empate, comparten victoria.
+   - Cartas por ronda: 10 bazas + la última carta de cada jugador. Si Devoción es triunfo,
+     esa última carta se juega en una baza más en vez de puntuarse. */
 (function () {
   'use strict';
 
@@ -59,6 +61,32 @@
   }
   function scorePlayer(p) { return scoreOf(p.counts, p.adj, state.shards, state.players.length); }
 
+  // Cartas que debería haber entre todas las zonas de puntuación.
+  function expectedCards(nPlayers, devotionTrump) {
+    return devotionTrump ? 2 * (10 + nPlayers) + 11 : 3 * (10 + nPlayers);
+  }
+  function tableCheck() {
+    var np = state.players.length, total = 0, over = [];
+    state.shards.forEach(function (id) {
+      var n = 0;
+      state.players.forEach(function (p) { n += p.counts[id] || 0; });
+      total += n;
+      if (n > MAX_CARDS) over.push(shard(id).name);
+    });
+    return { total: total, normal: expectedCards(np, false), devo: state.shards.indexOf('devotion') >= 0 ? expectedCards(np, true) : null, over: over };
+  }
+  // Qué le falta a un jugador para su siguiente set de Resonancia.
+  function nextSet(p) {
+    var np = state.players.length, s = scorePlayer(p);
+    var missing = state.shards.filter(function (id) { return (p.counts[id] || 0) === s.sets; });
+    return { missing: missing, gain: resoPoints(s.sets + 1, np) - s.reso };
+  }
+  // Orden final: más puntos; en empate, menos cartas.
+  function ranking() {
+    return state.players.map(function (p) { return { p: p, s: scorePlayer(p) }; })
+      .sort(function (a, b) { return b.s.total - a.s.total || a.s.cards - b.s.cards; });
+  }
+
   /* ---------- Vistas ---------- */
 
   function render() {
@@ -109,8 +137,9 @@
     if (n === 0) return 'Sin cartas';
     if (n === 1) return '1 carta = 1';
     var parts = []; for (var i = 1; i <= n; i++) parts.push(i);
-    return n <= 6 ? parts.join('+') + ' = ' + shardPoints(n) : n + ' cartas: 1+2+…+' + n + ' = ' + shardPoints(n);
+    return n <= 6 ? parts.join('+') + ' = ' + shardPoints(n) : '1+2+…+' + n + ' = ' + shardPoints(n);
   }
+  function nextText(n) { return n >= MAX_CARDS ? '' : '<br><span class="nx">siguiente +' + (n + 1) + '</span>'; }
 
   function viewScore() {
     var np = state.players.length;
@@ -125,14 +154,29 @@
     var rows = state.shards.map(function (id) {
       var sh = shard(id), n = p.counts[id] || 0;
       return '<div class="row" style="--c:' + sh.c + '"><span class="gem"></span>' +
-        '<div class="who"><div class="nm">' + sh.name + '</div><div class="why">' + sumText(n) + '</div></div>' +
+        '<div class="who"><div class="nm">' + sh.name + '</div><div class="why">' + sumText(n) + nextText(n) + '</div></div>' +
         stepper('count', id, n, n, 0, MAX_CARDS) +
         '<div class="pts' + (s.per[id] ? '' : ' zero') + '">' + s.per[id] + '</div></div>';
     }).join('');
 
-    var resoWhy = s.sets > 0
-      ? s.sets + ' set' + (s.sets === 1 ? '' : 's') + ' completo' + (s.sets === 1 ? '' : 's') + ' (una carta de cada Esquirla)'
-      : 'Necesitas al menos una carta de cada Esquirla';
+    var ns = nextSet(p);
+    var resoWhy = (s.sets > 0
+      ? s.sets + ' set' + (s.sets === 1 ? '' : 's') + ' completo' + (s.sets === 1 ? '' : 's')
+      : 'Un set es una carta de cada Esquirla') +
+      '<br><span class="nx">Para ' + (s.sets > 0 ? 'otro' : 'el primero') + ' (+' + ns.gain + '): falta 1 de ' +
+      ns.missing.map(function (id) { return shard(id).name; }).join(', ') + '</span>';
+
+    var tc = tableCheck(), note, noteCls = '';
+    if (tc.over.length) {
+      noteCls = 'warn';
+      note = 'Hay más de ' + MAX_CARDS + ' cartas de ' + tc.over.join(', ') + ' entre todos: cada Esquirla solo tiene ' + MAX_CARDS + '.';
+    } else if (tc.total === tc.normal || tc.total === tc.devo) {
+      note = 'Cartas apuntadas: ' + tc.total + ' · el recuento cuadra ✓';
+    } else {
+      if (tc.total > tc.normal) noteCls = 'warn';
+      note = 'Cartas apuntadas: ' + tc.total + ' de ' + tc.normal +
+        (tc.devo != null ? ' (' + tc.devo + ' si Devoción fue triunfo)' : '');
+    }
 
     return '<div class="top"><div class="where"><div class="k">Puntuación final</div><h2>Esquirlas de la Creación</h2></div>' +
       '<button class="chip-btn" data-a="rules" aria-label="Reglas">?</button>' +
@@ -141,13 +185,13 @@
       '<div class="sheet-card">' + rows +
       '<div class="row reso"><div class="who"><div class="nm">✦ Resonancia</div><div class="why">' + resoWhy + '</div></div>' +
       '<div class="pts' + (s.reso ? '' : ' zero') + '">' + s.reso + '</div></div>' +
-      '<div class="row"><div class="who"><div class="nm">Ajustes</div><div class="why">Puntos de más o de menos por poderes de cartas</div></div>' +
+      '<div class="row"><div class="who"><div class="nm">Habilidades</div><div class="why">Suma o resta de tus cartas de fondo oscuro</div></div>' +
       stepper('adj', 'adj', p.adj, signed(p.adj), -99, 99) +
       '<div class="pts' + (p.adj < 0 ? ' neg' : p.adj ? '' : ' zero') + '">' + signed(p.adj) + '</div></div>' +
       '<div class="row total"><div class="who"><div class="nm">Total de ' + esc(p.name) + '</div>' +
       '<div class="why">' + s.cards + ' carta' + (s.cards === 1 ? '' : 's') + ' en su zona</div></div>' +
       '<div class="pts">' + s.total + '</div></div></div>' +
-      '<div class="dock"><div class="dock-in">' +
+      '<div class="dock"><p class="note ' + noteCls + '">' + note + '</p><div class="dock-in">' +
       (state.sel < np - 1
         ? '<button class="btn" data-a="next">Siguiente: ' + esc(state.players[state.sel + 1].name) + ' →</button>'
         : '<button class="btn" data-a="result">Ver quién gana</button>') +
@@ -155,29 +199,36 @@
   }
 
   function viewResult() {
-    var list = state.players.map(function (p) { return { p: p, s: scorePlayer(p) }; })
-      .sort(function (a, b) { return b.s.total - a.s.total; });
+    var list = ranking();
     var best = list[0].s.total;
     var tied = list.filter(function (x) { return x.s.total === best; });
+    var fewest = Math.min.apply(null, tied.map(function (x) { return x.s.cards; }));
+    var winners = tied.filter(function (x) { return x.s.cards === fewest; });
 
-    var pos = 0, prev = null;
+    var title = winners.length > 1
+      ? winners.map(function (x) { return esc(x.p.name); }).join(' y ') + ' comparten la victoria'
+      : esc(winners[0].p.name) + ' gana';
+    var tieNote = '';
+    if (tied.length > 1) {
+      tieNote = '<div class="tie">Empate a ' + best + ' puntos. ' +
+        (winners.length > 1
+          ? 'También empatan a ' + fewest + ' cartas, así que comparten la victoria.'
+          : 'Gana quien tiene menos cartas en su zona: ' + esc(winners[0].p.name) + ' con ' + fewest + '.') + '</div>';
+    }
+
     var ranks = list.map(function (x, j) {
-      if (x.s.total !== prev) { pos = j + 1; prev = x.s.total; }
-      return '<div class="rank' + (pos === 1 ? ' first' : '') + '"><span class="place">' + pos + '</span>' +
+      var isWin = winners.indexOf(x) >= 0;
+      var pos = isWin ? 1 : j + 1;
+      return '<div class="rank' + (isWin ? ' first' : '') + '"><span class="place">' + pos + '</span>' +
         '<div class="who"><div class="nm">' + esc(x.p.name) + '</div><div class="sub">' +
-        x.s.cards + (x.s.cards === 1 ? ' carta' : ' cartas') + ' · Resonancia ' + x.s.reso + (x.s.adj ? ' · ajustes ' + signed(x.s.adj) : '') + '</div></div>' +
+        x.s.cards + (x.s.cards === 1 ? ' carta' : ' cartas') + ' · Resonancia ' + x.s.reso +
+        (x.s.adj ? ' · habilidades ' + signed(x.s.adj) : '') + '</div></div>' +
         '<div class="tot">' + x.s.total + '</div></div>';
     }).join('');
 
     return '<a class="home" href="../../">‹ Juegos</a>' +
-      '<div class="winner"><div class="orn">✦</div><h2>' +
-      (tied.length > 1 ? 'Empate a ' + best + ' puntos' : esc(tied[0].p.name) + ' gana') + '</h2>' +
-      (tied.length > 1 ? '' : '<p class="muted">con ' + best + ' puntos</p>') + '</div>' +
-      (tied.length > 1
-        ? '<div class="tie">El empate se resuelve por número de cartas: ' +
-          tied.map(function (x) { return esc(x.p.name) + ' tiene ' + x.s.cards; }).join(', ') + '. Consultad el reglamento para ver quién se lo lleva.</div>'
-        : '') +
-      ranks +
+      '<div class="winner"><div class="orn">✦</div><h2>' + title + '</h2>' +
+      '<p class="muted">con ' + best + ' puntos</p></div>' + tieNote + ranks +
       '<div class="dock"><div class="dock-in"><button class="btn ghost" data-a="back">Corregir</button>' +
       '<button class="btn" data-a="again">Otra partida</button></div></div>';
   }
@@ -193,7 +244,7 @@
   function rulesSheet() {
     var n = Math.max(state.players.length, state.names.length), b = resoBase(n);
     openSheet('<h2>Cómo se puntúa</h2>' +
-      '<p>Se cuenta una sola vez, al acabar la tercera ronda, con las cartas de tu zona de puntuación.</p>' +
+      '<p>Se cuenta una sola vez, al acabar la tercera ronda, con las cartas de tu zona de puntuación. El número de cada carta no importa: solo de qué Esquirla es.</p>' +
       '<h3>Cartas de cada Esquirla</h3>' +
       '<p>Cada carta de la misma Esquirla vale una más que la anterior: la primera 1, la segunda 2, la tercera 3…</p>' +
       '<table><tr><th>Cartas</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr>' +
@@ -204,8 +255,10 @@
       '<tr><th>2–3 jugadores</th><td>5</td><td>10</td><td>20</td><td>40</td></tr>' +
       '<tr><th>4 jugadores</th><td>8</td><td>16</td><td>32</td><td>64</td></tr></table>' +
       '<p class="small">En esta partida el primer set vale ' + b + '.</p>' +
-      '<h3>Ajustes</h3><p>Algunas cartas suman o restan puntos al final. Apunta ahí el total de esos efectos.</p>' +
-      '<h3>Empate</h3><p>Se desempata por el número de cartas.</p>' +
+      '<p class="small">Una misma carta cuenta para su Esquirla y para un set a la vez.</p>' +
+      '<h3>Habilidades de puntuación</h3><p>Las cartas con el texto sobre <b>fondo oscuro</b> suman o restan puntos al final. Resuélvelas primero y apunta el total en «Habilidades».</p>' +
+      '<h3>Empate</h3><p>Gana quien tenga <b>menos cartas</b> en su zona de puntuación. Si también empatan, comparten la victoria.</p>' +
+      '<h3>¿Cuántas cartas debería haber?</h3><p>Cada ronda reparte 10 cartas de bazas más la última de la mano de cada jugador: en total 36 a dos jugadores, 39 a tres y 42 a cuatro. Si Devoción fue triunfo, esa ronda la última carta se juega en vez de puntuarse.</p>' +
       '<div class="actions"><button class="btn" data-a="closeSheet">Entendido</button></div>');
   }
 
@@ -285,6 +338,6 @@
     window.addEventListener('load', function () { navigator.serviceWorker.register('../../sw.js').catch(function () {}); });
   }
 
-  window.__esq = { scoreOf: scoreOf }; // para pruebas
+  window.__esq = { scoreOf: scoreOf, expectedCards: expectedCards }; // para pruebas
   render();
 })();
