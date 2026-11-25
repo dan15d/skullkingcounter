@@ -42,5 +42,22 @@ window.GAMES = [
         return top.level > 1 ? 'En curso · ' + top.name + ' va en nivel ' + top.level : 'Partida en curso';
       } catch (e) { return null; }
     }
+  },
+  {
+    id: 'esquirlas',
+    name: 'Esquirlas de la Creación',
+    path: 'games/esquirlas/',
+    emoji: '💎',
+    blurb: 'Calcula la puntuación final de tus Esquirlas',
+    players: '2–4 jugadores',
+    colors: { bg: '#120c26', bg2: '#3a2a6b', title: '#e9c46a', text: '#f5efe0', soft: '#b3a8d6' },
+    titleFont: '"Didot", "Bodoni 72", "Iowan Old Style", Palatino, Georgia, serif',
+    status: function () {
+      try {
+        var s = JSON.parse(localStorage.getItem('tanteo-esquirlas-v1'));
+        if (!s || s.screen === 'setup') return null;
+        return s.screen === 'result' ? 'Puntuación calculada' : 'Recuento a medias';
+      } catch (e) { return null; }
+    }
   }
 ];

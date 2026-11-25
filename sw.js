@@ -1,12 +1,13 @@
 /* Tanteo: permite jugar sin conexión.
    Red primero (para recibir cambios), caché si no hay red.
    Al añadir un juego, suma sus archivos a FILES y sube el número de CACHE. */
-var CACHE = 'tanteo-v3';
+var CACHE = 'tanteo-v4';
 var FILES = [
   './', 'index.html', 'hub.css', 'hub.js', 'games.js', 'manifest.webmanifest',
   'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
   'games/skull-king/', 'games/skull-king/index.html', 'games/skull-king/style.css', 'games/skull-king/app.js',
-  'games/munchkin/', 'games/munchkin/index.html', 'games/munchkin/style.css', 'games/munchkin/app.js'
+  'games/munchkin/', 'games/munchkin/index.html', 'games/munchkin/style.css', 'games/munchkin/app.js',
+  'games/esquirlas/', 'games/esquirlas/index.html', 'games/esquirlas/style.css', 'games/esquirlas/app.js'
 ];
 
 self.addEventListener('install', function (e) {

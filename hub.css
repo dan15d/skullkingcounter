@@ -44,7 +44,7 @@ h1 { font-size: 32px; line-height: 1.1; font-weight: 800; letter-spacing: -.02em
   position: absolute; right: -6px; top: -14px; font-size: 120px; line-height: 1; opacity: .9;
   transform: rotate(12deg); pointer-events: none;
 }
-.game .name { position: relative; font-size: 32px; font-weight: 700; line-height: 1.1; color: var(--g-title); margin: 0; }
+.game .name { position: relative; max-width: 72%; font-size: 32px; font-weight: 700; line-height: 1.1; color: var(--g-title); margin: 0; }
 .game .blurb { position: relative; margin: 6px 0 0; max-width: 62%; font-size: 15px; }
 .game .row { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-top: 22px; }
 .game .meta { font-size: 13px; color: var(--g-soft); }
