@@ -23,5 +23,24 @@ window.GAMES = [
         return 'Partida en curso · ronda ' + (s.cur + 1) + ' de ' + s.rounds.length;
       } catch (e) { return null; }
     }
+  },
+  {
+    id: 'munchkin',
+    name: 'Munchkin',
+    path: 'games/munchkin/',
+    emoji: '🗡️',
+    blurb: 'Sube de nivel antes que tus «amigos»',
+    players: '2–8 jugadores',
+    colors: { bg: '#2a140e', bg2: '#7a2e1d', title: '#ffd23f', text: '#fbeed3', soft: '#d9b48a' },
+    titleFont: '"Marker Felt", "Chalkboard SE", "Comic Sans MS", ui-rounded, sans-serif',
+    status: function () {
+      try {
+        var s = JSON.parse(localStorage.getItem('tanteo-munchkin-v1'));
+        if (!s || s.screen !== 'game' || !s.players || !s.players.length) return null;
+        var top = s.players.slice().sort(function (a, b) { return b.level - a.level; })[0];
+        if (s.won) return 'Ganó ' + top.name;
+        return top.level > 1 ? 'En curso · ' + top.name + ' va en nivel ' + top.level : 'Partida en curso';
+      } catch (e) { return null; }
+    }
   }
 ];
