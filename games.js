@@ -59,5 +59,22 @@ window.GAMES = [
         return s.screen === 'result' ? 'Puntuación calculada' : 'Recuento a medias';
       } catch (e) { return null; }
     }
+  },
+  {
+    id: 'white-castle',
+    name: 'The White Castle',
+    path: 'games/white-castle/',
+    emoji: '🏯',
+    blurb: 'Suma cortesanos, guerreros y jardines',
+    players: '1–4 jugadores',
+    colors: { bg: '#e8dcc6', bg2: '#fffaf0', title: '#b7281e', text: '#221d1a', soft: '#736759' },
+    titleFont: '"Hiragino Mincho ProN", "Yu Mincho", "Iowan Old Style", Palatino, Georgia, serif',
+    status: function () {
+      try {
+        var s = JSON.parse(localStorage.getItem('tanteo-whitecastle-v1'));
+        if (!s || s.screen === 'setup') return null;
+        return s.screen === 'result' ? 'Puntuación calculada' : 'Recuento a medias';
+      } catch (e) { return null; }
+    }
   }
 ];
