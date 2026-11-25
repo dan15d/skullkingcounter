@@ -1,0 +1,71 @@
+/* Tanteo · portada. Estilo neutro y amable; cada juego trae el suyo. */
+:root {
+  --bg: #fbf5ec;
+  --ink: #221c17;
+  --soft: #7a6d60;
+  --line: #e3d7c5;
+  --accent: #f2594b;
+  --rounded: ui-rounded, "SF Pro Rounded", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #17141c; --ink: #f6efe6; --soft: #a79c92; --line: #37313f; }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--rounded); font-size: 16px; line-height: 1.4; min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+}
+.wrap {
+  max-width: 520px; margin: 0 auto;
+  padding: calc(18px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom));
+}
+
+.bar { display: flex; align-items: center; gap: 10px; }
+.bar img { border-radius: 11px; display: block; }
+.app-name { font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
+
+h1 { font-size: 32px; line-height: 1.1; font-weight: 800; letter-spacing: -.02em; margin: 30px 0 6px; }
+.lead { margin: 0 0 22px; color: var(--soft); font-size: 17px; }
+
+.games { display: grid; gap: 14px; }
+
+.game {
+  position: relative; display: block; overflow: hidden; text-decoration: none;
+  border-radius: 24px; padding: 20px 20px 18px; min-height: 168px;
+  background: linear-gradient(150deg, var(--g-bg2), var(--g-bg) 65%);
+  color: var(--g-text);
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, .45);
+}
+.game:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.game .emoji {
+  position: absolute; right: -6px; top: -14px; font-size: 120px; line-height: 1; opacity: .9;
+  transform: rotate(12deg); pointer-events: none;
+}
+.game .name { position: relative; font-size: 32px; font-weight: 700; line-height: 1.1; color: var(--g-title); margin: 0; }
+.game .blurb { position: relative; margin: 6px 0 0; max-width: 62%; font-size: 15px; }
+.game .row { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-top: 22px; }
+.game .meta { font-size: 13px; color: var(--g-soft); }
+.game .status {
+  display: inline-block; margin-bottom: 6px; padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; background: var(--g-title); color: var(--g-bg);
+}
+.game .go {
+  flex: none; height: 44px; padding: 0 18px; border-radius: 22px; display: inline-flex; align-items: center;
+  font-weight: 800; font-size: 15px; background: var(--g-title); color: var(--g-bg);
+}
+
+.soon {
+  border: 2px dashed var(--line); border-radius: 24px; padding: 22px 20px; text-align: center; color: var(--soft);
+}
+.soon b { display: block; color: var(--ink); font-size: 17px; margin-top: 4px; }
+.soon .dice { font-size: 30px; }
+
+.foot { margin: 26px 8px 0; text-align: center; font-size: 13px; color: var(--soft); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .game { transition: transform .12s ease; }
+  .game:active { transform: scale(.98); }
+}

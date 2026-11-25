@@ -1,4 +1,4 @@
-/* Bitácora · contador de puntos para Skull King (reglamento 2021) */
+/* Skull King · contador de puntos (reglamento 2021). Parte de Tanteo. */
 (function () {
   'use strict';
 
@@ -141,8 +141,9 @@
         '<span class="tick">✓</span><span><b>' + m.name + '</b><span class="d">' + m.desc + '</span></span></button>';
     }).join('');
 
-    return '<header class="brand"><div class="mark">☠️</div><h1>Bitácora</h1>' +
-      '<p>Contador de puntos para Skull King</p></header>' +
+    return '<a class="home" href="../../">‹ Juegos</a>' +
+      '<header class="brand"><div class="mark">☠️</div><h1>Skull King</h1>' +
+      '<p>Contador de puntos</p></header>' +
       '<div class="label">¿Quién juega?</div>' +
       '<div class="panel">' + rows +
       (n < MAX_P ? '<button class="add-btn" data-a="add">＋ Añadir jugador</button>' : '') +
@@ -285,7 +286,8 @@
     var top;
     if (fin) {
       var winners = order.filter(function (p) { return t[p.id] === best; });
-      top = '<div class="winner"><div class="mark">👑</div><h2>' +
+      top = '<a class="home" href="../../">‹ Juegos</a>' +
+        '<div class="winner"><div class="mark">👑</div><h2>' +
         (winners.length > 1
           ? 'Empate: ' + winners.map(function (p) { return esc(p.name); }).join(' y ')
           : esc(winners[0].name) + ' gana la partida') +
@@ -452,7 +454,12 @@
     rules: function () { rulesSheet(); return false; },
     closeSheet: function () { sheet.close(); return false; },
     askNew: function () {
-      confirmSheet('¿Abandonar la partida?', 'Se perderán las puntuaciones de esta partida.', 'Abandonar', 'newGame');
+      openSheet('<h2>¿Salir de la partida?</h2>' +
+        '<p>Puedes volver a la lista de juegos y seguir luego: la partida queda guardada.</p>' +
+        '<div class="actions col">' +
+        '<a class="btn" href="../../">Guardar y volver a Juegos</a>' +
+        '<button class="btn danger" data-a="newGame">Abandonar la partida</button>' +
+        '<button class="btn ghost" data-a="closeSheet">Seguir jugando</button></div>');
       return false;
     },
     newGame: function () {
@@ -516,7 +523,7 @@
 
   /* Sin conexión: el service worker guarda la app en el dispositivo. */
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    window.addEventListener('load', function () { navigator.serviceWorker.register('../../sw.js').catch(function () {}); });
   }
 
   // Para pruebas en consola

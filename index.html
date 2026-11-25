@@ -3,20 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d1826">
-<title>Bitácora · Contador de puntos para Skull King</title>
+<meta name="theme-color" content="#fbf5ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17141c" media="(prefers-color-scheme: dark)">
+<title>Tanteo · Contador de puntos para juegos de mesa</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Bitácora">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="stylesheet" href="style.css">
+<meta name="apple-mobile-web-app-title" content="Tanteo">
+<link rel="stylesheet" href="hub.css">
 </head>
 <body>
-<main id="app"></main>
-<dialog id="sheet"></dialog>
-<script src="app.js"></script>
+<main class="wrap">
+  <header class="bar">
+    <img src="icon.svg" alt="" width="40" height="40">
+    <span class="app-name">Tanteo</span>
+  </header>
+  <h1>¿A qué jugamos hoy?</h1>
+  <p class="lead">Elige un juego y yo llevo la cuenta.</p>
+  <div id="games" class="games"></div>
+  <p class="foot">Las partidas se guardan en este dispositivo y funcionan sin conexión.</p>
+</main>
+<script src="games.js"></script>
+<script src="hub.js"></script>
 </body>
 </html>

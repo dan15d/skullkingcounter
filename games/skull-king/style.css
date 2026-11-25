@@ -47,7 +47,13 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 700; margin: 0; letter-spac
 .small { font-size: 13px; }
 
 /* ---------- Portada ---------- */
-.brand { text-align: center; padding: 28px 0 22px; }
+.home {
+  display: inline-flex; align-items: center; height: 40px; padding: 0 14px 0 10px; border-radius: 20px;
+  background: var(--sea-2); border: 1px solid var(--line); color: var(--paper);
+  font-weight: 600; font-size: 14px; text-decoration: none;
+}
+.home:hover { background: var(--sea-3); }
+.brand { text-align: center; padding: 12px 0 22px; }
 .brand .mark { font-size: 44px; line-height: 1; }
 .brand h1 { font-size: 40px; color: var(--gold); margin-top: 6px; }
 .brand p { margin: 4px 0 0; color: var(--fog); }
@@ -258,3 +264,6 @@ dialog::backdrop { background: rgba(5, 10, 18, .7); }
 @media (prefers-reduced-motion: no-preference) {
   .card, .opt, .btn { transition: background-color .12s, transform .08s; }
 }
+
+.sheet .actions.col { flex-direction: column; }
+a.btn { display: flex; align-items: center; justify-content: center; text-decoration: none; }
