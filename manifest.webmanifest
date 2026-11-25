@@ -1,0 +1,16 @@
+{
+  "name": "Bitácora · Contador para Skull King",
+  "short_name": "Bitácora",
+  "description": "Contador de puntos para Skull King",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1826",
+  "theme_color": "#0d1826",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
